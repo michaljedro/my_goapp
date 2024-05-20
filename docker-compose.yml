@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
+  vault:
+    image: vault:1.8.0
+    container_name: vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+
+  myapp:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - clickhouse
+      - vault
+
+volumes:
+  clickhouse_data:
